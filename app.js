@@ -4,8 +4,8 @@
    SUPABASE CONFIG
    Fill in after following SETUP_GUIDE.md
    ════════════════════════════════════════════════ */
-const SUPABASE_URL  = '';  // paste your Project URL here
-const SUPABASE_ANON = '';  // paste your anon/public key here
+const SUPABASE_URL  = 'https://ydtkremsqomtlyocjsng.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_PZcSch5_vSf5R3PdaYRjGQ_-46gHW1g';
 
 /* ── State ── */
 let currentModalId = null;
@@ -36,7 +36,8 @@ function sbH() {
     'apikey': SUPABASE_ANON,
     'Authorization': 'Bearer ' + SUPABASE_ANON,
     'Content-Type': 'application/json',
-    'Prefer': 'return=representation'
+    'Prefer': 'return=representation',
+    'X-Client-Info': 'ehc2026'
   };
 }
 
