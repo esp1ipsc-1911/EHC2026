@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EHC 2026 — Stage Analysis | Classic Division</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <span class="badge-ec">EHC 2026</span>
+      <h1>Stage Analysis</h1>
+      <span class="badge-div">Classic Division · 10-round magazines</span>
+    </div>
+    <div class="header-stats" id="headerStats"></div>
+  </div>
+</header>
+
+<nav class="filters">
+  <button class="filter-btn active" data-filter="all">All Stages <span class="cnt" id="cntAll"></span></button>
+  <button class="filter-btn" data-filter="special">Special Constraints <span class="cnt" id="cntSpecial"></span></button>
+  <button class="filter-btn" data-filter="moving">Moving Targets <span class="cnt" id="cntMoving"></span></button>
+  <button class="filter-btn" data-filter="long">Long (≥24 rds) <span class="cnt" id="cntLong"></span></button>
+  <button class="filter-btn" data-filter="reload3">3+ Reloads <span class="cnt" id="cntReload3"></span></button>
+</nav>
+
+<main class="grid" id="grid"></main>
+
+<!-- Stage detail modal -->
+<div class="modal-backdrop" id="backdrop" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <button class="modal-close" onclick="closeModal()">✕ Close</button>
+  <div class="modal-inner" id="modalContent"></div>
+</div>
+
+<script src="stage_data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
