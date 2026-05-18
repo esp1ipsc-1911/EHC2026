@@ -86,3 +86,31 @@ header{background:#161b27;border-bottom:1px solid #2d3748;padding:.9rem 1.5rem;p
 .info-chip strong{color:#e2e8f0}
 .edit-hint{position:fixed;bottom:1rem;right:1rem;background:#553c9a;color:#e9d8fd;border-radius:8px;padding:.75rem 1rem;font-size:.75rem;line-height:1.6;box-shadow:0 4px 12px rgba(0,0,0,.5);z-index:400;max-width:220px}
 .hidden{display:none!important}
+
+/* ── Shooting Order Edit Mode ── */
+.order-edit-hint{font-size:.7rem;color:#718096;margin-bottom:.5rem;padding:4px 8px;background:#1a2236;border-radius:4px}
+.order-list-edit{list-style:none;margin-bottom:.5rem}
+.order-edit-item{display:flex;align-items:center;gap:8px;padding:5px 4px;border-radius:6px;border:1px solid transparent;cursor:default;margin-bottom:3px;background:#1a2236;transition:background .1s}
+.order-edit-item:hover{background:#2d3748}
+.order-edit-item.dragging{opacity:.4;border-color:#4a5568}
+.order-edit-item.drag-over{border-color:#f6ad55;background:#2d3748}
+.drag-handle{font-size:14px;color:#4a5568;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none}
+.drag-handle:active{cursor:grabbing}
+.step-num-edit{cursor:pointer;flex-shrink:0}
+.step-num-edit:hover{opacity:.75;transform:translate(-50%,-50%) scale(1.1)}
+.step-text-edit{flex:1;font-size:.79rem;color:#e2e8f0;line-height:1.4;border:none;background:transparent;outline:none;border-bottom:1px solid transparent;min-width:0}
+.step-text-edit:focus{border-bottom-color:#4299e1;color:#fff}
+.btn-step-del{flex-shrink:0;background:none;border:none;color:#4a5568;font-size:12px;cursor:pointer;padding:2px 5px;border-radius:4px;line-height:1}
+.btn-step-del:hover{color:#fc8181;background:#742a2a}
+.order-add-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.btn-add-step{background:#1a365d;color:#90cdf4;border:1px solid #2b6cb0;padding:5px 12px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer}
+.btn-add-step:hover{background:#2b6cb0;color:#fff}
+.btn-add-reload{background:#7b341e;color:#fbd38d;border-color:#c05621}
+.btn-add-reload:hover{background:#c05621;color:#fff}
+.btn-reset-order{background:none;color:#718096;border:1px solid #4a5568;padding:5px 12px;border-radius:6px;font-size:.72rem;cursor:pointer}
+.btn-reset-order:hover{color:#a0aec0;border-color:#718096}
+
+/* ── Dynamic marker base (size set via JS) ── */
+.marker{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.65);z-index:5;position:absolute;transform:translate(-50%,-50%);white-space:nowrap}
+.marker.draggable{cursor:grab}
+.marker.draggable:active{cursor:grabbing;filter:brightness(1.2)}

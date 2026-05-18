@@ -1,31 +1,28 @@
-/* ── EHC 2026 Stage Analysis — Supabase Edition ── */
+/* ── EHC 2026 Stage Analysis — Supabase Edition v3 ── */
 
-/* ════════════════════════════════════════════════
-   SUPABASE CONFIG
-   Fill in after following SETUP_GUIDE.md
-   ════════════════════════════════════════════════ */
 const SUPABASE_URL  = 'https://ydtkremsqomtlyocjsng.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_PZcSch5_vSf5R3PdaYRjGQ_-46gHW1g';
 
 /* ── State ── */
 let currentModalId = null;
 let editMode       = false;
-let positions      = {};
+let positions      = {};   // overlay marker positions per stage
+let shootingOrders = {};   // custom shooting orders per stage
 let supabaseReady  = false;
 let saveTimeout    = null;
 
 const TAG_LABELS = {
-  special: { label:'Special',    cls:'b-purple' },
-  moving:  { label:'Movers',     cls:'b-blue'   },
-  long:    { label:'24+ rds',    cls:'b-orange'  },
-  reload3: { label:'3+ Reloads', cls:'b-red'    }
+  special: {label:'Special',    cls:'b-purple'},
+  moving:  {label:'Movers',     cls:'b-blue'},
+  long:    {label:'24+ rds',    cls:'b-orange'},
+  reload3: {label:'3+ Reloads', cls:'b-red'}
 };
 const RELOAD_BADGE = [
-  {cls:'b-green',  label:'No reload' },
-  {cls:'b-blue',   label:'1 Reload'  },
-  {cls:'b-orange', label:'2 Reloads' },
-  {cls:'b-red',    label:'3 Reloads' },
-  {cls:'b-red',    label:'4 Reloads' }
+  {cls:'b-green',  label:'No reload'},
+  {cls:'b-blue',   label:'1 Reload'},
+  {cls:'b-orange', label:'2 Reloads'},
+  {cls:'b-red',    label:'3 Reloads'},
+  {cls:'b-red',    label:'4 Reloads'}
 ];
 
 /* ════════════════════════════════════════════════
@@ -42,16 +39,22 @@ function sbH() {
 }
 
 async function sbGetAll() {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/stage_positions?select=*`, { headers: sbH() });
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/stage_positions?select=*`, {headers:sbH()});
   if (!r.ok) throw new Error('GET failed ' + r.status);
   return r.json();
 }
 
-async function sbUpsert(stageId, data) {
+async function sbUpsert(stageId, posData, orderData) {
+  const payload = {
+    stage_id:       stageId,
+    positions:      posData,
+    shooting_order: orderData,
+    updated_at:     new Date().toISOString()
+  };
   const r = await fetch(`${SUPABASE_URL}/rest/v1/stage_positions`, {
     method: 'POST',
-    headers: { ...sbH(), 'Prefer': 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify({ stage_id: stageId, positions: data, updated_at: new Date().toISOString() })
+    headers: {...sbH(), 'Prefer': 'resolution=merge-duplicates,return=representation'},
+    body: JSON.stringify(payload)
   });
   if (!r.ok) throw new Error('UPSERT failed ' + await r.text());
   return r.json();
@@ -63,33 +66,31 @@ async function sbUpsert(stageId, data) {
 function setSyncStatus(state, msg) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
-  const colors = { ok:'#9ae6b4', saving:'#f6ad55', error:'#fc8181', loading:'#90cdf4' };
-  const icons  = { ok:'●', saving:'↻', error:'✕', loading:'◌' };
+  const colors = {ok:'#9ae6b4', saving:'#f6ad55', error:'#fc8181', loading:'#90cdf4'};
+  const icons  = {ok:'●', saving:'↻', error:'✕', loading:'◌'};
   el.style.color = colors[state] || '#a0aec0';
   el.textContent = (icons[state]||'') + ' ' + msg;
 }
 
 /* ════════════════════════════════════════════════
-   INIT — load positions from Supabase
+   INIT — load all data from Supabase
    ════════════════════════════════════════════════ */
 async function initPositions() {
   setSyncStatus('loading', 'Connecting…');
-
-  if (!SUPABASE_URL || !SUPABASE_ANON) {
-    setSyncStatus('error', 'Not configured — open app.js and add Supabase keys');
-    loadFallback();
-    return;
-  }
-
   try {
     const rows = await sbGetAll();
-    rows.forEach(row => { positions[String(row.stage_id)] = row.positions; });
+    rows.forEach(row => {
+      if (row.positions)      positions[String(row.stage_id)]      = row.positions;
+      if (row.shooting_order) shootingOrders[String(row.stage_id)] = row.shooting_order;
+    });
+    // Fill missing stages from local fallback
     STAGES.forEach(s => {
-      if (!positions[String(s.id)]) {
-        const fb = window._LOCAL && window._LOCAL[String(s.id)];
-        if (fb) positions[String(s.id)] = fb;
-        else positions[String(s.id)] = { markers:[], ns:[], movers:[] };
+      const k = String(s.id);
+      if (!positions[k]) {
+        const fb = window._LOCAL && window._LOCAL[k];
+        positions[k] = fb || {markers:[], ns:[], movers:[]};
       }
+      if (!shootingOrders[k]) shootingOrders[k] = null; // null = use stage_data default
     });
     supabaseReady = true;
     setSyncStatus('ok', `Live · ${rows.length} stages loaded`);
@@ -102,12 +103,14 @@ async function initPositions() {
 function loadFallback() {
   if (window._LOCAL) Object.assign(positions, window._LOCAL);
   STAGES.forEach(s => {
-    if (!positions[String(s.id)]) positions[String(s.id)] = { markers:[], ns:[], movers:[] };
+    const k = String(s.id);
+    if (!positions[k])      positions[k]      = {markers:[], ns:[], movers:[]};
+    if (!shootingOrders[k]) shootingOrders[k] = null;
   });
 }
 
 /* ════════════════════════════════════════════════
-   AUTO-SAVE (debounced 800ms after last drag)
+   AUTO-SAVE (debounced 800ms)
    ════════════════════════════════════════════════ */
 function scheduleSave(stageId) {
   clearTimeout(saveTimeout);
@@ -118,7 +121,8 @@ function scheduleSave(stageId) {
 async function saveStage(stageId) {
   if (!supabaseReady) { setSyncStatus('error', 'Not connected'); return; }
   try {
-    await sbUpsert(stageId, positions[String(stageId)]);
+    const k = String(stageId);
+    await sbUpsert(stageId, positions[k], shootingOrders[k]);
     setSyncStatus('ok', 'Saved ' + new Date().toLocaleTimeString());
   } catch(e) {
     setSyncStatus('error', 'Save failed');
@@ -127,17 +131,21 @@ async function saveStage(stageId) {
 }
 
 /* ════════════════════════════════════════════════
-   LIVE POLL — check remote changes every 15s
+   LIVE POLL every 15s
    ════════════════════════════════════════════════ */
 function startLivePoll() {
   if (!supabaseReady) return;
   setInterval(async () => {
     try {
       const rows = await sbGetAll();
-      rows.forEach(row => { positions[String(row.stage_id)] = row.positions; });
+      rows.forEach(row => {
+        if (row.positions)      positions[String(row.stage_id)]      = row.positions;
+        if (row.shooting_order) shootingOrders[String(row.stage_id)] = row.shooting_order;
+      });
       if (currentModalId) {
         renderOverlaySvg(currentModalId);
         renderOverlayMarkers(currentModalId);
+        renderShootingOrder(currentModalId);
       }
     } catch(e) {}
   }, 15000);
@@ -224,7 +232,7 @@ function openModal(id) {
   document.getElementById('btnPrev').disabled = STAGES.findIndex(x=>x.id===id)===0;
   document.getElementById('btnNext').disabled = STAGES.findIndex(x=>x.id===id)===STAGES.length-1;
   const btnE = document.getElementById('btnEditMode');
-  btnE.classList.remove('active'); btnE.textContent = '✏ Edit positions';
+  btnE.classList.remove('active'); btnE.textContent = '✏ Edit';
   document.getElementById('editHint').style.display = 'none';
   renderModalContent(s);
   document.getElementById('backdrop').classList.add('open');
@@ -249,22 +257,33 @@ function toggleEditMode() {
   editMode = !editMode;
   const btn = document.getElementById('btnEditMode');
   btn.classList.toggle('active', editMode);
-  btn.textContent = editMode ? '✓ Done editing' : '✏ Edit positions';
+  btn.textContent = editMode ? '✓ Done' : '✏ Edit';
   document.getElementById('editHint').style.display = editMode ? 'block' : 'none';
   const c = document.querySelector('.stage-img-container');
   if (c) c.classList.toggle('edit-mode', editMode);
   renderOverlayMarkers(currentModalId);
+  renderShootingOrder(currentModalId);
 }
 
-function renderModalContent(s) {
-  const steps = s.order.map((step,i)=>{
-    const isR=step.toUpperCase().includes('RELOAD'), isS=i===0;
-    const cls=isS?'start':isR?'reload':'shoot';
-    return `<li><span class="step-num ${cls}">${i+1}</span><span>${step}</span></li>`;
-  }).join('');
-  const alerts = (s.alerts||[]).map(a=>`<div class="alert-box">${a}</div>`).join('');
-  const hasDis = s.order.some(o=>o.toUpperCase().includes('DISAPPEAR'));
+/* ════════════════════════════════════════════════
+   GET ACTIVE SHOOTING ORDER
+   Returns custom order from DB, or default from stage_data
+   ════════════════════════════════════════════════ */
+function getActiveOrder(stageId) {
+  const k = String(stageId);
+  if (shootingOrders[k] && shootingOrders[k].length > 0) return shootingOrders[k];
+  const s = STAGES.find(x=>x.id===stageId);
+  return s ? s.order.map((text,i) => ({
+    text,
+    type: text.toUpperCase().includes('RELOAD') ? 'reload' : i===0 ? 'start' : 'shoot'
+  })) : [];
+}
 
+/* ════════════════════════════════════════════════
+   RENDER MODAL CONTENT
+   ════════════════════════════════════════════════ */
+function renderModalContent(s) {
+  const hasDis = s.order.some(o=>o.toUpperCase().includes('DISAPPEAR'));
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-title-row">${buildBadges(s)}</div>
     <div class="modal-title">Stage ${s.id}</div>
@@ -277,7 +296,8 @@ function renderModalContent(s) {
       <svg class="overlay-svg" id="overlaySvg"></svg>
       <div class="overlay-wrap" id="overlayWrap"></div>
     </div>
-    <div class="modal-section"><h3>Key information</h3>
+    <div class="modal-section">
+      <h3>Key information</h3>
       <div class="info-row">
         <div class="info-chip"><strong>${s.rounds}</strong> rounds</div>
         <div class="info-chip"><strong>${s.papers}</strong> papers</div>
@@ -293,11 +313,17 @@ function renderModalContent(s) {
       <div class="info-chip" style="display:inline-block">${s.moving}</div></div>`:''}
     <div class="modal-section"><h3>Classic magazine plan</h3>
       <div class="mag-plan">${s.magPlan}</div></div>
-    <div class="modal-section"><h3>Shooting order</h3>
-      <ol class="order-list">${steps}</ol></div>
+    <div class="modal-section">
+      <h3>Shooting order</h3>
+      <div id="shootingOrderList"></div>
+    </div>
     ${s.special&&s.special.length>0?`<div class="modal-section"><h3>Special constraints</h3>
       ${s.special.map(sp=>`<div class="alert-box">${sp}</div>`).join('')}</div>`:''}
-    <div class="modal-section"><h3>Critical alerts</h3>${alerts}</div>`;
+    <div class="modal-section"><h3>Critical alerts</h3>
+      ${(s.alerts||[]).map(a=>`<div class="alert-box">${a}</div>`).join('')}</div>`;
+
+  // Render shooting order after HTML is set
+  renderShootingOrder(s.id);
 }
 
 function onImgLoad(id) {
@@ -306,17 +332,162 @@ function onImgLoad(id) {
     const b = document.getElementById('imgBannerTop');
     if (b) b.textContent = `${s.rounds} rounds · ${s.reloads} reload${s.reloads!==1?'s':''} · ${s.ns} NS · ${s.magPlan.split('.')[0]}`;
   }
-  renderOverlaySvg(id); renderOverlayMarkers(id);
+  renderOverlaySvg(id);
+  renderOverlayMarkers(id);
 }
 
 /* ════════════════════════════════════════════════
-   OVERLAY
+   SHOOTING ORDER — render + edit
+   ════════════════════════════════════════════════ */
+function renderShootingOrder(stageId) {
+  const container = document.getElementById('shootingOrderList');
+  if (!container) return;
+  const order = getActiveOrder(stageId);
+
+  if (!editMode) {
+    // Read-only view
+    container.innerHTML = `<ol class="order-list">
+      ${order.map((step,i) => {
+        const text = typeof step === 'string' ? step : step.text;
+        const type = typeof step === 'object' ? step.type : (
+          text.toUpperCase().includes('RELOAD') ? 'reload' : i===0 ? 'start' : 'shoot'
+        );
+        return `<li><span class="step-num ${type}">${i+1}</span><span>${text}</span></li>`;
+      }).join('')}
+    </ol>`;
+    return;
+  }
+
+  // Edit mode — draggable + editable
+  container.innerHTML = `
+    <div class="order-edit-hint">Drag to reorder · Click text to edit · Use buttons to add/delete</div>
+    <ol class="order-list-edit" id="orderDragList">
+      ${order.map((step,i) => {
+        const text = typeof step === 'string' ? step : step.text;
+        const type = typeof step === 'object' ? step.type : (
+          text.toUpperCase().includes('RELOAD') ? 'reload' : i===0 ? 'start' : 'shoot'
+        );
+        return `<li class="order-edit-item" draggable="true" data-idx="${i}">
+          <span class="drag-handle">⠿</span>
+          <span class="step-num ${type} step-num-edit" onclick="cycleStepType(${stageId},${i})" title="Click to change type">${i+1}</span>
+          <span class="step-text-edit" contenteditable="true"
+            onblur="updateStepText(${stageId},${i},this.textContent)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${text}</span>
+          <button class="btn-step-del" onclick="deleteStep(${stageId},${i})" title="Delete step">✕</button>
+        </li>`;
+      }).join('')}
+    </ol>
+    <div class="order-add-row">
+      <button class="btn-add-step" onclick="addStep(${stageId},'shoot')">+ Add step</button>
+      <button class="btn-add-step btn-add-reload" onclick="addStep(${stageId},'reload')">+ Add RELOAD</button>
+      <button class="btn-reset-order" onclick="resetOrder(${stageId})">↺ Reset to default</button>
+    </div>`;
+
+  initDragSort(stageId);
+  // Sync image markers with current order numbering
+  renderOverlayMarkers(stageId);
+}
+
+/* ── Cycle step type (shoot → reload → start → shoot) ── */
+function cycleStepType(stageId, idx) {
+  const order = getActiveOrder(stageId);
+  const step  = order[idx];
+  const types = ['shoot','reload','start'];
+  const cur   = (typeof step === 'object' ? step.type : 'shoot') || 'shoot';
+  const next  = types[(types.indexOf(cur)+1) % types.length];
+  order[idx]  = { text: typeof step === 'string' ? step : step.text, type: next };
+  shootingOrders[String(stageId)] = order;
+  scheduleSave(stageId);
+  renderShootingOrder(stageId);
+}
+
+/* ── Update step text after inline edit ── */
+function updateStepText(stageId, idx, newText) {
+  const order = getActiveOrder(stageId);
+  const step  = order[idx];
+  const cur   = typeof step === 'object' ? step : {text: step, type:'shoot'};
+  cur.text    = newText.trim() || cur.text;
+  // Auto-detect reload type from text
+  if (cur.text.toUpperCase().includes('RELOAD')) cur.type = 'reload';
+  order[idx]  = cur;
+  shootingOrders[String(stageId)] = order;
+  scheduleSave(stageId);
+  renderOverlayMarkers(stageId); // update numbers on image
+}
+
+/* ── Add a new step ── */
+function addStep(stageId, type) {
+  const order = getActiveOrder(stageId);
+  order.push({ text: type === 'reload' ? 'RELOAD' : 'New step', type });
+  shootingOrders[String(stageId)] = order;
+  scheduleSave(stageId);
+  renderShootingOrder(stageId);
+}
+
+/* ── Delete a step ── */
+function deleteStep(stageId, idx) {
+  const order = getActiveOrder(stageId);
+  order.splice(idx, 1);
+  shootingOrders[String(stageId)] = order;
+  scheduleSave(stageId);
+  renderShootingOrder(stageId);
+}
+
+/* ── Reset to stage_data default ── */
+function resetOrder(stageId) {
+  if (!confirm('Reset shooting order to original? This cannot be undone.')) return;
+  shootingOrders[String(stageId)] = null;
+  scheduleSave(stageId);
+  renderShootingOrder(stageId);
+}
+
+/* ── Drag-and-drop reordering ── */
+function initDragSort(stageId) {
+  const list = document.getElementById('orderDragList');
+  if (!list) return;
+  let dragIdx = null;
+
+  list.querySelectorAll('.order-edit-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragIdx = parseInt(item.dataset.idx);
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.order-edit-item').forEach(i=>i.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      list.querySelectorAll('.order-edit-item').forEach(i=>i.classList.remove('drag-over'));
+      item.classList.add('drag-over');
+    });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const dropIdx = parseInt(item.dataset.idx);
+      if (dragIdx === null || dragIdx === dropIdx) return;
+      const order = getActiveOrder(stageId);
+      const [moved] = order.splice(dragIdx, 1);
+      order.splice(dropIdx, 0, moved);
+      shootingOrders[String(stageId)] = order;
+      scheduleSave(stageId);
+      renderShootingOrder(stageId);
+      renderOverlayMarkers(stageId);
+    });
+  });
+}
+
+/* ════════════════════════════════════════════════
+   OVERLAY — dynamic marker size based on image width
    ════════════════════════════════════════════════ */
 function getBounds() {
   const img = document.getElementById('stageImg'); if (!img) return null;
   const W=img.clientWidth, H=img.clientHeight;
+  // Marker size: 3.5% of image width, clamped 18px–36px
+  const ms = Math.max(18, Math.min(36, W * 0.035));
+  const fs = Math.max(9,  Math.min(14, W * 0.016));
   const off=H*0.37, dH=H-off;
-  return {W,H,off,dH};
+  return {W, H, off, dH, ms, fs};
 }
 
 function renderOverlaySvg(id) {
@@ -330,8 +501,10 @@ function renderOverlaySvg(id) {
   </defs>`;
   pos.movers.forEach(m=>{
     const c=m.disappears?'#fc8181':'#68d391', mi=m.disappears?'ar':'ag';
+    const lw = Math.max(1.5, b.W * 0.003);
     s+=`<line x1="${px(m.from_x)}" y1="${py(m.from_y)}" x2="${px(m.to_x)}" y2="${py(m.to_y)}"
-         stroke="${c}" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#${mi})" opacity="0.9"/>`;
+         stroke="${c}" stroke-width="${lw}" stroke-dasharray="${lw*2.5},${lw*1.8}"
+         marker-end="url(#${mi})" opacity="0.9"/>`;
   });
   svg.innerHTML=s;
 }
@@ -341,7 +514,25 @@ function renderOverlayMarkers(id) {
   wrap.innerHTML='';
   const pos=positions[String(id)]; if(!pos) return;
   const b=getBounds(); if(!b) return;
+
+  // Get current active shooting order for number labels
+  const order = getActiveOrder(id);
+
   const toP=(fx,fy)=>({x:fx*b.W, y:b.off+fy*b.dH});
+
+  // Dynamic sizes
+  const ms  = b.ms;           // marker diameter px
+  const fs  = b.fs;           // font size px
+  const ns  = Math.max(14, ms * 0.75);   // NS marker smaller
+  const nfs = Math.max(7,  fs * 0.8);
+
+  function applySize(el, size, fsize, extra) {
+    el.style.width  = size+'px';
+    el.style.height = size+'px';
+    el.style.fontSize = fsize+'px';
+    el.style.borderWidth = Math.max(1.5, size*0.07)+'px';
+    if (extra) Object.assign(el.style, extra);
+  }
 
   function makeDrag(el, obj) {
     if (!editMode) return;
@@ -364,24 +555,51 @@ function renderOverlayMarkers(id) {
     document.addEventListener('touchend',up);
   }
 
-  (pos.markers||[]).forEach(m=>{
+  // Draw step markers — numbers reflect current shooting order
+  (pos.markers||[]).forEach((m, markerIdx) => {
+    // Find which step number this marker corresponds to
+    // Marker step number matches order index + 1
+    const stepNum = m.step; // original step number
+    // Find position of this step in current order (for renumbering)
+    const currentNum = stepNum; // keep original for now; user reorders via list
     const p=toP(m.x,m.y);
     const el=document.createElement('div');
+    const isReload = m.type==='reload';
+    const isStart  = m.type==='start';
     el.className=`marker type-${m.type||'shoot'}`;
     el.style.left=p.x+'px'; el.style.top=p.y+'px';
-    el.innerHTML=`${m.type==='reload'?'↺':m.step}<span class="marker-tooltip">${m.label||''}</span>`;
-    makeDrag(el,m); wrap.appendChild(el);
+    el.innerHTML=`${isReload?'↺':currentNum}<span class="marker-tooltip">${m.label||''}</span>`;
+    applySize(el, ms, fs);
+    makeDrag(el, m);
+    wrap.appendChild(el);
   });
 
+  // NS markers
   (pos.ns||[]).forEach(n=>{
     const p=toP(n.x,n.y);
     const el=document.createElement('div');
     el.className='marker type-ns';
     el.style.left=p.x+'px'; el.style.top=p.y+'px';
     el.innerHTML=`NS<span class="marker-tooltip">NS Target — DO NOT SHOOT</span>`;
-    makeDrag(el,n); wrap.appendChild(el);
+    applySize(el, ns, nfs);
+    makeDrag(el,n);
+    wrap.appendChild(el);
   });
 }
+
+/* ════════════════════════════════════════════════
+   RESIZE — re-render overlay on window resize
+   ════════════════════════════════════════════════ */
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (currentModalId) {
+      renderOverlaySvg(currentModalId);
+      renderOverlayMarkers(currentModalId);
+    }
+  }, 150);
+});
 
 /* ════════════════════════════════════════════════
    BOOT
