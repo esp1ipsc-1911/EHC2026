@@ -1,0 +1,440 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "EHC 2026 stage overlay positions. All values are fractions (0-1) of the diagram image area. Edit via the app editor then export to update this file.",
+    "coord_system": "x=left-right (0=left, 1=right), y=top-bottom (0=top, 1=bottom)"
+  },
+  "1": {
+    "start": {"x": 0.50, "y": 0.78},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.78, "type": "start", "label": "Start (barrel)"},
+      {"step": 2, "x": 0.29, "y": 0.52, "type": "shoot", "label": "P1 popper"},
+      {"step": 3, "x": 0.39, "y": 0.42, "type": "shoot", "label": "P2 → T1"},
+      {"step": 4, "x": 0.56, "y": 0.42, "type": "shoot", "label": "P3 → T2"},
+      {"step": 5, "x": 0.66, "y": 0.52, "type": "shoot", "label": "P4 popper"},
+      {"step": 6, "x": 0.17, "y": 0.50, "type": "shoot", "label": "T1 mover"},
+      {"step": 7, "x": 0.82, "y": 0.45, "type": "shoot", "label": "T2 mover + NS paper"},
+      {"step": 8, "x": 0.30, "y": 0.60, "type": "shoot", "label": "Papers left"},
+      {"step": 9, "x": 0.60, "y": 0.55, "type": "shoot", "label": "Papers right"}
+    ],
+    "ns": [{"x": 0.84, "y": 0.44}],
+    "movers": [
+      {"from_x": 0.39, "from_y": 0.40, "to_x": 0.17, "to_y": 0.48, "disappears": false},
+      {"from_x": 0.56, "from_y": 0.40, "to_x": 0.82, "to_y": 0.43, "disappears": false}
+    ]
+  },
+  "2": {
+    "start": {"x": 0.50, "y": 0.87},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.87, "type": "start", "label": "Start — rack slide"},
+      {"step": 2, "x": 0.23, "y": 0.55, "type": "shoot", "label": "Left bay: T1+T2+papers"},
+      {"step": 3, "x": 0.43, "y": 0.35, "type": "shoot", "label": "Center: P2+P3+papers"},
+      {"step": 4, "x": 0.74, "y": 0.55, "type": "shoot", "label": "Right bay: T3+T4+papers"},
+      {"step": 5, "x": 0.50, "y": 0.72, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.15, "y": 0.52, "type": "shoot", "label": "P1 (far left)"},
+      {"step": 7, "x": 0.85, "y": 0.52, "type": "shoot", "label": "P4 (far right)"},
+      {"step": 8, "x": 0.50, "y": 0.80, "type": "reload", "label": "RELOAD #2"},
+      {"step": 9, "x": 0.50, "y": 0.45, "type": "shoot", "label": "Metal plate + movers"}
+    ],
+    "ns": [{"x": 0.42, "y": 0.42}],
+    "movers": [
+      {"from_x": 0.23, "from_y": 0.38, "to_x": 0.16, "to_y": 0.50, "disappears": false},
+      {"from_x": 0.35, "from_y": 0.35, "to_x": 0.24, "to_y": 0.52, "disappears": false},
+      {"from_x": 0.62, "from_y": 0.35, "to_x": 0.74, "to_y": 0.52, "disappears": false},
+      {"from_x": 0.74, "from_y": 0.38, "to_x": 0.83, "to_y": 0.50, "disappears": false}
+    ]
+  },
+  "3": {
+    "start": {"x": 0.50, "y": 0.88},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.88, "type": "start", "label": "Start — pick up firearm"},
+      {"step": 2, "x": 0.27, "y": 0.55, "type": "shoot", "label": "Left bay: 2 papers + mini popper"},
+      {"step": 3, "x": 0.20, "y": 0.45, "type": "shoot", "label": "Left plate PL1"},
+      {"step": 4, "x": 0.50, "y": 0.72, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.66, "y": 0.48, "type": "shoot", "label": "Right bay: 2 papers + mini popper"},
+      {"step": 6, "x": 0.77, "y": 0.42, "type": "shoot", "label": "Right plate PL2"}
+    ],
+    "ns": [],
+    "movers": []
+  },
+  "4": {
+    "start": {"x": 0.50, "y": 0.92},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.92, "type": "start", "label": "Start — free choice"},
+      {"step": 2, "x": 0.22, "y": 0.58, "type": "shoot", "label": "Left cluster P1 (left wall)"},
+      {"step": 3, "x": 0.30, "y": 0.52, "type": "shoot", "label": "Left papers + boxes"},
+      {"step": 4, "x": 0.54, "y": 0.33, "type": "shoot", "label": "P2 → activates T1"},
+      {"step": 5, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.45, "y": 0.42, "type": "shoot", "label": "Center papers + boxes"},
+      {"step": 7, "x": 0.60, "y": 0.42, "type": "shoot", "label": "Right papers + boxes"},
+      {"step": 8, "x": 0.63, "y": 0.33, "type": "shoot", "label": "T1 mover (visible at rest)"},
+      {"step": 9, "x": 0.50, "y": 0.83, "type": "reload", "label": "RELOAD #2"},
+      {"step": 10, "x": 0.65, "y": 0.52, "type": "shoot", "label": "Metal plate + NS avoid"}
+    ],
+    "ns": [{"x": 0.50, "y": 0.52}],
+    "movers": [
+      {"from_x": 0.54, "from_y": 0.31, "to_x": 0.63, "to_y": 0.31, "disappears": false}
+    ]
+  },
+  "5": {
+    "start": {"x": 0.13, "y": 0.62},
+    "markers": [
+      {"step": 1, "x": 0.13, "y": 0.62, "type": "start", "label": "Start — free choice (left)"},
+      {"step": 2, "x": 0.22, "y": 0.42, "type": "shoot", "label": "Left bay: papers + poppers"},
+      {"step": 3, "x": 0.50, "y": 0.72, "type": "reload", "label": "RELOAD #1"},
+      {"step": 4, "x": 0.38, "y": 0.32, "type": "shoot", "label": "Center bay: papers + NS"},
+      {"step": 5, "x": 0.50, "y": 0.80, "type": "reload", "label": "RELOAD #2"},
+      {"step": 6, "x": 0.65, "y": 0.32, "type": "shoot", "label": "Right bay: plates + popper"},
+      {"step": 7, "x": 0.50, "y": 0.85, "type": "reload", "label": "RELOAD #3"},
+      {"step": 8, "x": 0.82, "y": 0.38, "type": "shoot", "label": "Far right: plates + NS"}
+    ],
+    "ns": [{"x": 0.22, "y": 0.48}, {"x": 0.80, "y": 0.33}],
+    "movers": []
+  },
+  "6": {
+    "start": {"x": 0.50, "y": 0.72},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.72, "type": "start", "label": "Start — sitting on chair"},
+      {"step": 2, "x": 0.50, "y": 0.65, "type": "shoot", "label": "Draw + rack slide"},
+      {"step": 3, "x": 0.38, "y": 0.35, "type": "shoot", "label": "P1 → activates PL2+PL3"},
+      {"step": 4, "x": 0.28, "y": 0.42, "type": "shoot", "label": "Left paper (T1 area)"},
+      {"step": 5, "x": 0.45, "y": 0.38, "type": "shoot", "label": "Center papers (P2)"},
+      {"step": 6, "x": 0.50, "y": 0.60, "type": "reload", "label": "RELOAD #1"},
+      {"step": 7, "x": 0.68, "y": 0.32, "type": "shoot", "label": "PL1 plate"},
+      {"step": 8, "x": 0.58, "y": 0.32, "type": "shoot", "label": "PL2 plate"},
+      {"step": 9, "x": 0.53, "y": 0.30, "type": "shoot", "label": "PL3 plate"}
+    ],
+    "ns": [],
+    "movers": [
+      {"from_x": 0.38, "from_y": 0.33, "to_x": 0.58, "to_y": 0.30, "disappears": false},
+      {"from_x": 0.38, "from_y": 0.33, "to_x": 0.53, "to_y": 0.28, "disappears": false}
+    ]
+  },
+  "7": {
+    "start": {"x": 0.50, "y": 0.88},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.88, "type": "start", "label": "Start — free choice"},
+      {"step": 2, "x": 0.46, "y": 0.30, "type": "shoot", "label": "P1 → activates T1"},
+      {"step": 3, "x": 0.30, "y": 0.52, "type": "shoot", "label": "Left papers + boxes"},
+      {"step": 4, "x": 0.50, "y": 0.52, "type": "shoot", "label": "Center papers"},
+      {"step": 5, "x": 0.50, "y": 0.72, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.25, "y": 0.38, "type": "shoot", "label": "Scoring metal plates (3x)"},
+      {"step": 7, "x": 0.60, "y": 0.30, "type": "shoot", "label": "T1 mover (visible at rest)"}
+    ],
+    "ns": [{"x": 0.32, "y": 0.33}, {"x": 0.60, "y": 0.33}],
+    "movers": [
+      {"from_x": 0.46, "from_y": 0.28, "to_x": 0.55, "to_y": 0.30, "disappears": false}
+    ]
+  },
+  "8": {
+    "start": {"x": 0.45, "y": 0.85},
+    "markers": [
+      {"step": 1, "x": 0.45, "y": 0.85, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.48, "y": 0.28, "type": "shoot", "label": "Open door → PL1 activates"},
+      {"step": 3, "x": 0.22, "y": 0.48, "type": "shoot", "label": "Left papers (strong hand)"},
+      {"step": 4, "x": 0.35, "y": 0.42, "type": "shoot", "label": "Center-left papers"},
+      {"step": 5, "x": 0.50, "y": 0.70, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.52, "y": 0.42, "type": "shoot", "label": "Center-right papers"},
+      {"step": 7, "x": 0.68, "y": 0.42, "type": "shoot", "label": "Right papers"},
+      {"step": 8, "x": 0.53, "y": 0.28, "type": "shoot", "label": "PL1 mover + PL2"}
+    ],
+    "ns": [{"x": 0.27, "y": 0.57}, {"x": 0.65, "y": 0.52}],
+    "movers": [
+      {"from_x": 0.48, "from_y": 0.26, "to_x": 0.53, "to_y": 0.26, "disappears": false}
+    ]
+  },
+  "9": {
+    "start": {"x": 0.50, "y": 0.65},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.65, "type": "start", "label": "Start — hands on wall"},
+      {"step": 2, "x": 0.13, "y": 0.42, "type": "shoot", "label": "Far left paper cluster"},
+      {"step": 3, "x": 0.27, "y": 0.35, "type": "shoot", "label": "Left-center papers"},
+      {"step": 4, "x": 0.50, "y": 0.58, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.42, "y": 0.32, "type": "shoot", "label": "Center-left papers"},
+      {"step": 6, "x": 0.58, "y": 0.32, "type": "shoot", "label": "Center-right papers"},
+      {"step": 7, "x": 0.50, "y": 0.63, "type": "reload", "label": "RELOAD #2"},
+      {"step": 8, "x": 0.72, "y": 0.35, "type": "shoot", "label": "Right-center papers"},
+      {"step": 9, "x": 0.87, "y": 0.42, "type": "shoot", "label": "Far right papers"},
+      {"step": 10, "x": 0.50, "y": 0.68, "type": "reload", "label": "RELOAD #3"}
+    ],
+    "ns": [
+      {"x": 0.15, "y": 0.35},
+      {"x": 0.47, "y": 0.30},
+      {"x": 0.60, "y": 0.30},
+      {"x": 0.85, "y": 0.35}
+    ],
+    "movers": []
+  },
+  "10": {
+    "start": {"x": 0.28, "y": 0.80},
+    "markers": [
+      {"step": 1, "x": 0.28, "y": 0.80, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.20, "y": 0.40, "type": "shoot", "label": "P1 (NS Popper — AVOID)"},
+      {"step": 3, "x": 0.32, "y": 0.38, "type": "shoot", "label": "P2 (scoring) → T1 activates"},
+      {"step": 4, "x": 0.22, "y": 0.52, "type": "shoot", "label": "Left papers"},
+      {"step": 5, "x": 0.38, "y": 0.48, "type": "shoot", "label": "Center papers"},
+      {"step": 6, "x": 0.28, "y": 0.68, "type": "reload", "label": "RELOAD #1"},
+      {"step": 7, "x": 0.61, "y": 0.38, "type": "shoot", "label": "T1 mover (visible at rest)"},
+      {"step": 8, "x": 0.62, "y": 0.48, "type": "shoot", "label": "Right papers + box"}
+    ],
+    "ns": [{"x": 0.20, "y": 0.38}],
+    "movers": [
+      {"from_x": 0.32, "from_y": 0.36, "to_x": 0.61, "to_y": 0.36, "disappears": false}
+    ]
+  },
+  "11": {
+    "start": {"x": 0.28, "y": 0.82},
+    "markers": [
+      {"step": 1, "x": 0.28, "y": 0.82, "type": "start", "label": "Start — free choice"},
+      {"step": 2, "x": 0.42, "y": 0.22, "type": "shoot", "label": "P1 → activates T1 + T2"},
+      {"step": 3, "x": 0.18, "y": 0.55, "type": "shoot", "label": "Far left papers"},
+      {"step": 4, "x": 0.30, "y": 0.48, "type": "shoot", "label": "Left-center papers"},
+      {"step": 5, "x": 0.28, "y": 0.70, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.42, "y": 0.42, "type": "shoot", "label": "Center papers + box"},
+      {"step": 7, "x": 0.60, "y": 0.40, "type": "shoot", "label": "Right papers + NS plates"},
+      {"step": 8, "x": 0.28, "y": 0.75, "type": "reload", "label": "RELOAD #2"},
+      {"step": 9, "x": 0.38, "y": 0.25, "type": "shoot", "label": "T1 mover"},
+      {"step": 10, "x": 0.47, "y": 0.25, "type": "shoot", "label": "T2 mover"}
+    ],
+    "ns": [{"x": 0.55, "y": 0.32}, {"x": 0.65, "y": 0.32}, {"x": 0.72, "y": 0.42}],
+    "movers": [
+      {"from_x": 0.42, "from_y": 0.20, "to_x": 0.38, "to_y": 0.23, "disappears": false},
+      {"from_x": 0.42, "from_y": 0.20, "to_x": 0.47, "to_y": 0.23, "disappears": false}
+    ]
+  },
+  "12": {
+    "start": {"x": 0.50, "y": 0.90},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.90, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.38, "y": 0.35, "type": "shoot", "label": "P1 → flip-up T1+T2 appear"},
+      {"step": 3, "x": 0.62, "y": 0.35, "type": "shoot", "label": "P2 → flip-up T3+T4 appear"},
+      {"step": 4, "x": 0.47, "y": 0.52, "type": "shoot", "label": "Standard paper (center)"},
+      {"step": 5, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.22, "y": 0.47, "type": "shoot", "label": "T1 flip-up"},
+      {"step": 7, "x": 0.30, "y": 0.44, "type": "shoot", "label": "T2 flip-up"},
+      {"step": 8, "x": 0.70, "y": 0.44, "type": "shoot", "label": "T3 flip-up"},
+      {"step": 9, "x": 0.78, "y": 0.47, "type": "shoot", "label": "T4 flip-up"}
+    ],
+    "ns": [],
+    "movers": [
+      {"from_x": 0.38, "from_y": 0.33, "to_x": 0.22, "to_y": 0.45, "disappears": false},
+      {"from_x": 0.38, "from_y": 0.33, "to_x": 0.30, "to_y": 0.42, "disappears": false},
+      {"from_x": 0.62, "from_y": 0.33, "to_x": 0.70, "to_y": 0.42, "disappears": false},
+      {"from_x": 0.62, "from_y": 0.33, "to_x": 0.78, "to_y": 0.45, "disappears": false}
+    ]
+  },
+  "13": {
+    "start": {"x": 0.50, "y": 0.78},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.78, "type": "start", "label": "Start — free choice"},
+      {"step": 2, "x": 0.28, "y": 0.30, "type": "shoot", "label": "P1 mini popper → T1 activates"},
+      {"step": 3, "x": 0.38, "y": 0.50, "type": "shoot", "label": "Left papers (Walther bay)"},
+      {"step": 4, "x": 0.50, "y": 0.45, "type": "shoot", "label": "Center papers"},
+      {"step": 5, "x": 0.50, "y": 0.65, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.72, "y": 0.42, "type": "shoot", "label": "Metal plate (PL right)"},
+      {"step": 7, "x": 0.32, "y": 0.30, "type": "shoot", "label": "T1 mover (visible at rest)"}
+    ],
+    "ns": [{"x": 0.52, "y": 0.43}],
+    "movers": [
+      {"from_x": 0.28, "from_y": 0.28, "to_x": 0.32, "to_y": 0.28, "disappears": false}
+    ]
+  },
+  "14": {
+    "start": {"x": 0.50, "y": 0.92},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.92, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.53, "y": 0.25, "type": "shoot", "label": "P1 → T1 activates (stays)"},
+      {"step": 3, "x": 0.43, "y": 0.25, "type": "shoot", "label": "⚠ P2 → T2+T3 DISAPPEAR — shoot NOW"},
+      {"step": 4, "x": 0.38, "y": 0.30, "type": "shoot", "label": "T2 — engage immediately!"},
+      {"step": 5, "x": 0.43, "y": 0.30, "type": "shoot", "label": "T3 — engage immediately!"},
+      {"step": 6, "x": 0.30, "y": 0.45, "type": "shoot", "label": "Left papers (pre-tunnel)"},
+      {"step": 7, "x": 0.50, "y": 0.60, "type": "shoot", "label": "Cooper Tunnel — crawl through"},
+      {"step": 8, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 9, "x": 0.60, "y": 0.40, "type": "shoot", "label": "Right papers (post-tunnel)"},
+      {"step": 10, "x": 0.50, "y": 0.82, "type": "reload", "label": "RELOAD #2"},
+      {"step": 11, "x": 0.53, "y": 0.28, "type": "shoot", "label": "T1 mover (visible at rest)"}
+    ],
+    "ns": [{"x": 0.65, "y": 0.28}],
+    "movers": [
+      {"from_x": 0.53, "from_y": 0.23, "to_x": 0.56, "to_y": 0.30, "disappears": false},
+      {"from_x": 0.43, "from_y": 0.23, "to_x": 0.38, "to_y": 0.28, "disappears": true},
+      {"from_x": 0.43, "from_y": 0.23, "to_x": 0.43, "to_y": 0.28, "disappears": true}
+    ]
+  },
+  "15": {
+    "start": {"x": 0.50, "y": 0.80},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.80, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.08, "y": 0.42, "type": "shoot", "label": "Far left papers + NS"},
+      {"step": 3, "x": 0.20, "y": 0.32, "type": "shoot", "label": "Left papers"},
+      {"step": 4, "x": 0.50, "y": 0.68, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.35, "y": 0.28, "type": "shoot", "label": "Center-left papers"},
+      {"step": 6, "x": 0.50, "y": 0.28, "type": "shoot", "label": "Center papers"},
+      {"step": 7, "x": 0.50, "y": 0.72, "type": "reload", "label": "RELOAD #2"},
+      {"step": 8, "x": 0.65, "y": 0.28, "type": "shoot", "label": "Center-right papers"},
+      {"step": 9, "x": 0.80, "y": 0.32, "type": "shoot", "label": "Right papers"},
+      {"step": 10, "x": 0.50, "y": 0.76, "type": "reload", "label": "RELOAD #3"},
+      {"step": 11, "x": 0.92, "y": 0.42, "type": "shoot", "label": "Far right papers + NS"}
+    ],
+    "ns": [
+      {"x": 0.08, "y": 0.35},
+      {"x": 0.35, "y": 0.25},
+      {"x": 0.65, "y": 0.25},
+      {"x": 0.92, "y": 0.35}
+    ],
+    "movers": []
+  },
+  "16": {
+    "start": {"x": 0.50, "y": 0.82},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.82, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.15, "y": 0.42, "type": "shoot", "label": "Far left papers (strong hand)"},
+      {"step": 3, "x": 0.27, "y": 0.38, "type": "shoot", "label": "Left papers"},
+      {"step": 4, "x": 0.50, "y": 0.70, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.72, "y": 0.38, "type": "shoot", "label": "Right papers (strong hand)"},
+      {"step": 6, "x": 0.85, "y": 0.42, "type": "shoot", "label": "Far right papers"}
+    ],
+    "ns": [
+      {"x": 0.15, "y": 0.35},
+      {"x": 0.27, "y": 0.33},
+      {"x": 0.72, "y": 0.33},
+      {"x": 0.85, "y": 0.35}
+    ],
+    "movers": []
+  },
+  "17": {
+    "start": {"x": 0.50, "y": 0.88},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.88, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.10, "y": 0.42, "type": "shoot", "label": "Far left cluster (NS area)"},
+      {"step": 3, "x": 0.22, "y": 0.35, "type": "shoot", "label": "Left papers"},
+      {"step": 4, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.50, "y": 0.28, "type": "shoot", "label": "Center bay papers"},
+      {"step": 6, "x": 0.50, "y": 0.80, "type": "reload", "label": "RELOAD #2"},
+      {"step": 7, "x": 0.78, "y": 0.35, "type": "shoot", "label": "Right papers"},
+      {"step": 8, "x": 0.90, "y": 0.42, "type": "shoot", "label": "Far right cluster"}
+    ],
+    "ns": [
+      {"x": 0.10, "y": 0.48},
+      {"x": 0.50, "y": 0.33},
+      {"x": 0.90, "y": 0.48}
+    ],
+    "movers": []
+  },
+  "18": {
+    "start": {"x": 0.25, "y": 0.82},
+    "markers": [
+      {"step": 1, "x": 0.25, "y": 0.82, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.42, "y": 0.28, "type": "shoot", "label": "P1 popper → T1 activates"},
+      {"step": 3, "x": 0.22, "y": 0.52, "type": "shoot", "label": "Left papers (S bay)"},
+      {"step": 4, "x": 0.35, "y": 0.45, "type": "shoot", "label": "Center-left papers"},
+      {"step": 5, "x": 0.25, "y": 0.70, "type": "reload", "label": "RELOAD #1"},
+      {"step": 6, "x": 0.62, "y": 0.42, "type": "shoot", "label": "Metal plate (right)"},
+      {"step": 7, "x": 0.48, "y": 0.28, "type": "shoot", "label": "T1 mover (visible at rest)"}
+    ],
+    "ns": [{"x": 0.20, "y": 0.58}],
+    "movers": [
+      {"from_x": 0.42, "from_y": 0.26, "to_x": 0.48, "to_y": 0.26, "disappears": false}
+    ]
+  },
+  "19": {
+    "start": {"x": 0.38, "y": 0.85},
+    "markers": [
+      {"step": 1, "x": 0.38, "y": 0.85, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.32, "y": 0.38, "type": "shoot", "label": "P1 (scoring popper)"},
+      {"step": 3, "x": 0.55, "y": 0.30, "type": "shoot", "label": "P2 → T1 activates"},
+      {"step": 4, "x": 0.30, "y": 0.52, "type": "shoot", "label": "Left papers"},
+      {"step": 5, "x": 0.42, "y": 0.48, "type": "shoot", "label": "Center papers"},
+      {"step": 6, "x": 0.38, "y": 0.72, "type": "reload", "label": "RELOAD #1"},
+      {"step": 7, "x": 0.43, "y": 0.32, "type": "shoot", "label": "T1 mover (visible at rest)"},
+      {"step": 8, "x": 0.65, "y": 0.42, "type": "shoot", "label": "Right papers (Laser Ammo)"}
+    ],
+    "ns": [{"x": 0.72, "y": 0.38}],
+    "movers": [
+      {"from_x": 0.55, "from_y": 0.28, "to_x": 0.43, "to_y": 0.30, "disappears": false}
+    ]
+  },
+  "20": {
+    "start": {"x": 0.50, "y": 0.82},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.82, "type": "start", "label": "Start — free choice"},
+      {"step": 2, "x": 0.22, "y": 0.48, "type": "shoot", "label": "Left bay: papers + popper"},
+      {"step": 3, "x": 0.30, "y": 0.38, "type": "shoot", "label": "Center-left papers"},
+      {"step": 4, "x": 0.50, "y": 0.68, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.42, "y": 0.28, "type": "shoot", "label": "Top center: NS poppers (avoid!)"},
+      {"step": 6, "x": 0.57, "y": 0.32, "type": "shoot", "label": "Center-right papers + popper"},
+      {"step": 7, "x": 0.50, "y": 0.73, "type": "reload", "label": "RELOAD #2"},
+      {"step": 8, "x": 0.72, "y": 0.40, "type": "shoot", "label": "Right bay: papers + popper"}
+    ],
+    "ns": [{"x": 0.22, "y": 0.40}, {"x": 0.48, "y": 0.28}, {"x": 0.60, "y": 0.30}],
+    "movers": []
+  },
+  "21": {
+    "start": {"x": 0.50, "y": 0.90},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.90, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.18, "y": 0.55, "type": "shoot", "label": "Far left papers + popper"},
+      {"step": 3, "x": 0.30, "y": 0.45, "type": "shoot", "label": "Left-center papers"},
+      {"step": 4, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.45, "y": 0.38, "type": "shoot", "label": "Center papers + NS avoid"},
+      {"step": 6, "x": 0.58, "y": 0.40, "type": "shoot", "label": "Center-right papers"},
+      {"step": 7, "x": 0.50, "y": 0.80, "type": "reload", "label": "RELOAD #2"},
+      {"step": 8, "x": 0.72, "y": 0.48, "type": "shoot", "label": "Right papers + popper"},
+      {"step": 9, "x": 0.85, "y": 0.55, "type": "shoot", "label": "Far right papers"}
+    ],
+    "ns": [{"x": 0.42, "y": 0.32}, {"x": 0.55, "y": 0.32}],
+    "movers": []
+  },
+  "22": {
+    "start": {"x": 0.50, "y": 0.68},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.68, "type": "start", "label": "Start — hold bull's horns"},
+      {"step": 2, "x": 0.15, "y": 0.45, "type": "shoot", "label": "Left bay (KMR board area)"},
+      {"step": 3, "x": 0.28, "y": 0.35, "type": "shoot", "label": "Left-center papers"},
+      {"step": 4, "x": 0.50, "y": 0.58, "type": "reload", "label": "RELOAD #1"},
+      {"step": 5, "x": 0.42, "y": 0.28, "type": "shoot", "label": "Center papers (top row)"},
+      {"step": 6, "x": 0.58, "y": 0.28, "type": "shoot", "label": "Center-right papers"},
+      {"step": 7, "x": 0.50, "y": 0.62, "type": "reload", "label": "RELOAD #2"},
+      {"step": 8, "x": 0.72, "y": 0.35, "type": "shoot", "label": "Right-center papers"},
+      {"step": 9, "x": 0.85, "y": 0.45, "type": "shoot", "label": "Right bay (KMR board area)"}
+    ],
+    "ns": [{"x": 0.12, "y": 0.52}, {"x": 0.88, "y": 0.52}],
+    "movers": []
+  },
+  "23": {
+    "start": {"x": 0.50, "y": 0.88},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.88, "type": "start", "label": "Start — heels on mark"},
+      {"step": 2, "x": 0.43, "y": 0.38, "type": "shoot", "label": "P1 → T1 APPEARS — shoot T1 NOW"},
+      {"step": 3, "x": 0.47, "y": 0.35, "type": "shoot", "label": "⚠ T1 moving — engage immediately"},
+      {"step": 4, "x": 0.55, "y": 0.38, "type": "shoot", "label": "P2 (scoring popper)"},
+      {"step": 5, "x": 0.32, "y": 0.52, "type": "shoot", "label": "Left papers (HS board)"},
+      {"step": 6, "x": 0.44, "y": 0.48, "type": "shoot", "label": "Center papers"},
+      {"step": 7, "x": 0.50, "y": 0.75, "type": "reload", "label": "RELOAD #1"},
+      {"step": 8, "x": 0.35, "y": 0.42, "type": "shoot", "label": "PL1 scoring plate"},
+      {"step": 9, "x": 0.40, "y": 0.40, "type": "shoot", "label": "PL2 scoring plate"}
+    ],
+    "ns": [{"x": 0.18, "y": 0.52}, {"x": 0.78, "y": 0.52}],
+    "movers": [
+      {"from_x": 0.43, "from_y": 0.36, "to_x": 0.47, "to_y": 0.33, "disappears": true}
+    ]
+  },
+  "24": {
+    "start": {"x": 0.50, "y": 0.75},
+    "markers": [
+      {"step": 1, "x": 0.50, "y": 0.75, "type": "start", "label": "Start — sitting in boat"},
+      {"step": 2, "x": 0.50, "y": 0.65, "type": "shoot", "label": "Pick up firearm (WEAK HAND)"},
+      {"step": 3, "x": 0.28, "y": 0.35, "type": "shoot", "label": "P1 → T1 activates"},
+      {"step": 4, "x": 0.50, "y": 0.35, "type": "shoot", "label": "Center papers (3x, 1 hit min each)"},
+      {"step": 5, "x": 0.58, "y": 0.35, "type": "shoot", "label": "P2 → T2 activates"},
+      {"step": 6, "x": 0.22, "y": 0.42, "type": "shoot", "label": "T1 mover (visible at rest)"},
+      {"step": 7, "x": 0.68, "y": 0.42, "type": "shoot", "label": "T2 mover (visible at rest)"},
+      {"step": 8, "x": 0.72, "y": 0.35, "type": "shoot", "label": "P3 (far right popper)"}
+    ],
+    "ns": [],
+    "movers": [
+      {"from_x": 0.28, "from_y": 0.33, "to_x": 0.22, "to_y": 0.40, "disappears": false},
+      {"from_x": 0.58, "from_y": 0.33, "to_x": 0.68, "to_y": 0.40, "disappears": false}
+    ]
+  }
+}
