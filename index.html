@@ -17,11 +17,7 @@
     </div>
     <div class="header-right">
       <div class="header-stats" id="headerStats"></div>
-      <div class="header-actions">
-        <button class="btn-import" onclick="document.getElementById('importFile').click()" title="Load positions.json from disk">⬆ Import positions</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importPositions(event)">
-        <button class="btn-export" onclick="exportPositions()" title="Save positions.json for GitHub">⬇ Export positions</button>
-      </div>
+      <div id="syncStatus" class="sync-status">◌ Connecting…</div>
     </div>
   </div>
 </header>
@@ -36,34 +32,30 @@
 
 <main class="grid" id="grid"></main>
 
-<!-- Stage modal -->
 <div class="modal-backdrop" id="backdrop" onclick="closeModal()"></div>
 <div class="modal" id="modal">
   <div class="modal-header-bar">
     <div class="modal-header-left">
       <button class="btn-nav" id="btnPrev" onclick="navigateModal(-1)">← Prev</button>
-      <span id="modalStageLabel" style="font-size:0.85rem;color:#a0aec0"></span>
+      <span id="modalStageLabel" style="font-size:.82rem;color:#a0aec0"></span>
       <button class="btn-nav" id="btnNext" onclick="navigateModal(1)">Next →</button>
     </div>
     <div class="modal-header-right">
       <button class="btn-edit" id="btnEditMode" onclick="toggleEditMode()">✏ Edit positions</button>
-      <button class="btn-export-stage" onclick="exportPositions()">⬇ Save to JSON</button>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()">✕ Close</button>
     </div>
   </div>
   <div class="modal-inner" id="modalContent"></div>
 </div>
 
-<!-- Edit help tooltip -->
 <div class="edit-hint" id="editHint" style="display:none">
-  <strong>Edit mode active</strong><br>
-  Drag any marker to reposition it.<br>
-  Changes auto-save to memory.<br>
-  Click "Save to JSON" when done.
+  <strong>Edit mode</strong><br>
+  Drag any marker to reposition.<br>
+  Auto-saves to database instantly.<br>
+  Your buddy sees changes in ~15 sec.
 </div>
 
 <script src="stage_data.js"></script>
-<script src="positions.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
