@@ -114,3 +114,30 @@ header{background:#161b27;border-bottom:1px solid #2d3748;padding:.9rem 1.5rem;p
 .marker{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.65);z-index:5;position:absolute;transform:translate(-50%,-50%);white-space:nowrap}
 .marker.draggable{cursor:grab}
 .marker.draggable:active{cursor:grabbing;filter:brightness(1.2)}
+
+/* ── Add Marker Popup ── */
+.add-marker-popup{position:fixed;z-index:500;background:#1a2236;border:1px solid #4a5568;border-radius:10px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.7);width:220px}
+.popup-title{font-size:.72rem;font-weight:700;color:#a0aec0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.popup-types{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.popup-type-btn{background:#2d3748;border:1px solid #4a5568;color:#e2e8f0;padding:6px 4px;border-radius:6px;font-size:.72rem;font-weight:600;cursor:pointer;text-align:center;transition:all .1s}
+.popup-type-btn:hover{background:#4a5568}
+.popup-type-btn.selected{border-color:#f6ad55;background:#7b341e;color:#fbd38d}
+.popup-type-btn.type-shoot.selected{border-color:#90cdf4;background:#1a365d;color:#90cdf4}
+.popup-type-btn.type-reload.selected{border-color:#f6ad55;background:#7b341e;color:#fbd38d}
+.popup-type-btn.type-start.selected{border-color:#9ae6b4;background:#1c4532;color:#9ae6b4}
+.popup-type-btn.type-ns.selected{border-color:#fc8181;background:#742a2a;color:#fc8181}
+.popup-text-input{width:100%;background:#0d1117;border:1px solid #4a5568;color:#e2e8f0;padding:6px 8px;border-radius:5px;font-size:.75rem;margin-bottom:8px;outline:none}
+.popup-text-input:focus{border-color:#4299e1}
+.popup-actions{display:flex;justify-content:flex-end}
+.popup-cancel{background:none;border:1px solid #4a5568;color:#718096;padding:4px 10px;border-radius:5px;font-size:.7rem;cursor:pointer}
+.popup-cancel:hover{color:#a0aec0}
+
+/* ── Order empty states ── */
+.order-empty{font-size:.78rem;color:#4a5568;padding:12px;text-align:center;border:1px dashed #2d3748;border-radius:6px;line-height:1.6}
+.order-empty strong{color:#718096}
+.order-empty-edit{font-size:.76rem;color:#718096;padding:10px;text-align:center;border:1px dashed #4a5568;border-radius:6px;margin-bottom:8px}
+
+/* ── Edit mode cursor on image ── */
+.stage-img-container.edit-mode{cursor:crosshair}
+.stage-img-container.edit-mode .overlay-wrap{pointer-events:none}
+.stage-img-container.edit-mode .marker{pointer-events:all}
