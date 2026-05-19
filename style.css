@@ -141,3 +141,9 @@ header{background:#161b27;border-bottom:1px solid #2d3748;padding:.9rem 1.5rem;p
 .stage-img-container.edit-mode{cursor:crosshair}
 .stage-img-container.edit-mode .overlay-wrap{pointer-events:none}
 .stage-img-container.edit-mode .marker{pointer-events:all}
+
+/* ── Delete marker popup ── */
+.delete-popup{width:200px}
+.popup-delete-label{font-size:.8rem;color:#e2e8f0;margin-bottom:10px;padding:6px 8px;background:#2d3748;border-radius:5px;text-align:center}
+.popup-delete-btn{background:#742a2a;color:#fc8181;border:1px solid #9b2c2c;padding:5px 14px;border-radius:5px;font-size:.75rem;font-weight:600;cursor:pointer}
+.popup-delete-btn:hover{background:#9b2c2c;color:#fff}

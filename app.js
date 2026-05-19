@@ -357,14 +357,11 @@ function onImageClick(e,id) {
   const W=img.clientWidth, H=img.clientHeight;
   const b=getBounds(); if(!b) return;
 
-  // Calculate position as fraction within the diagram area
+  // Calculate position as fraction of full image
   const clickX=e.clientX-rect.left;
   const clickY=e.clientY-rect.top;
   const fx=Math.max(0,Math.min(1,clickX/W));
-  const fy=Math.max(0,Math.min(1,(clickY-b.off)/b.dH));
-
-  // Only trigger within the diagram area (below the table header)
-  if(clickY < b.off) return;
+  const fy=Math.max(0,Math.min(1,clickY/H));
 
   pendingClick={fx,fy};
   showAddPopup(e.clientX,e.clientY,id);
@@ -438,6 +435,48 @@ function confirmAddMarker(id,type) {
     shootingOrders[k].push({text:orderText, type});
   }
 
+  scheduleSave(id);
+  renderOverlaySvg(id);
+  renderOverlayMarkers(id);
+  renderShootingOrder(id);
+}
+
+
+function showDeletePopup(clientX,clientY,id,markerType,idx) {
+  closePopup();
+  const popup=document.createElement('div');
+  popup.id='addMarkerPopup';
+  popup.className='add-marker-popup delete-popup';
+  const label=markerType==='ns'?'NS target':'Step '+(idx+1);
+  popup.innerHTML=`
+    <div class="popup-title">Delete marker</div>
+    <div class="popup-delete-label">${label}</div>
+    <div class="popup-actions" style="justify-content:space-between">
+      <button class="popup-cancel" onclick="closePopup()">Cancel</button>
+      <button class="popup-delete-btn" onclick="deleteMarkerFromImage(${id},'${markerType}',${idx})">🗑 Delete</button>
+    </div>`;
+  document.body.appendChild(popup);
+  const pw=200,ph=110;
+  let left=clientX+10,top=clientY+10;
+  if(left+pw>window.innerWidth)  left=clientX-pw-10;
+  if(top+ph>window.innerHeight)  top=clientY-ph-10;
+  popup.style.left=left+'px';
+  popup.style.top=top+'px';
+}
+
+function deleteMarkerFromImage(id,markerType,idx) {
+  closePopup();
+  const k=String(id);
+  if(markerType==='ns') {
+    positions[k].ns.splice(idx,1);
+  } else {
+    positions[k].markers.splice(idx,1);
+    positions[k].markers.forEach((m,i)=>{m.step=i+1;});
+    // Also remove from shooting order
+    if(shootingOrders[k]&&shootingOrders[k].length>idx) {
+      shootingOrders[k].splice(idx,1);
+    }
+  }
   scheduleSave(id);
   renderOverlaySvg(id);
   renderOverlayMarkers(id);
@@ -546,8 +585,8 @@ function getBounds() {
   const W=img.clientWidth,H=img.clientHeight;
   const ms=Math.max(18,Math.min(36,W*0.035));
   const fs=Math.max(9,Math.min(14,W*0.016));
-  const off=H*0.37,dH=H-off;
-  return{W,H,off,dH,ms,fs};
+  // Use full image — no offset, coordinates are fractions of full image
+  return{W,H,off:0,dH:H,ms,fs};
 }
 
 function renderOverlaySvg(id) {
@@ -608,7 +647,7 @@ function renderOverlayMarkers(id) {
   const ns=Math.max(14,b.ms*0.75);
   const nfs=Math.max(7,b.fs*0.8);
 
-  (pos.markers||[]).forEach(m=>{
+  (pos.markers||[]).forEach((m,idx)=>{
     const p=toP(m.x,m.y);
     const el=document.createElement('div');
     el.className=`marker type-${m.type||'shoot'}`;
@@ -616,10 +655,16 @@ function renderOverlayMarkers(id) {
     el.innerHTML=`${m.type==='reload'?'↺':m.step}<span class="marker-tooltip">${m.label||''}</span>`;
     applySize(el,b.ms,b.fs);
     makeDrag(el,m);
+    if(editMode) {
+      el.addEventListener('click',e=>{
+        e.stopPropagation();
+        showDeletePopup(e.clientX,e.clientY,id,'marker',idx);
+      });
+    }
     wrap.appendChild(el);
   });
 
-  (pos.ns||[]).forEach(n=>{
+  (pos.ns||[]).forEach((n,idx)=>{
     const p=toP(n.x,n.y);
     const el=document.createElement('div');
     el.className='marker type-ns';
@@ -627,6 +672,12 @@ function renderOverlayMarkers(id) {
     el.innerHTML=`NS<span class="marker-tooltip">NS Target — DO NOT SHOOT</span>`;
     applySize(el,ns,nfs);
     makeDrag(el,n);
+    if(editMode) {
+      el.addEventListener('click',e=>{
+        e.stopPropagation();
+        showDeletePopup(e.clientX,e.clientY,id,'ns',idx);
+      });
+    }
     wrap.appendChild(el);
   });
 }
