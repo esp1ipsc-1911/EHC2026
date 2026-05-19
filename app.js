@@ -432,13 +432,12 @@ function onImageClick(e,id) {
   pendingClick={fx,fy};
 
   if(_activeMarker) {
-    // Move active marker to new position
+    // Move active marker to new position — marker stays active after move
     _activeMarker.obj.x=fx;
     _activeMarker.obj.y=fy;
-    _activeMarker=null;
     scheduleSave(id);
     renderOverlayMarkers(id);
-    updateToolbarDeleteBtn(false);
+    // Keep in move mode — marker stays active so user can keep adjusting
   } else {
     // Place new marker
     confirmAddMarker(id, getToolbarType());
@@ -451,13 +450,47 @@ let _activeMarker = null; // {type:'marker'|'ns', idx, obj} — currently select
 
 function getToolbarType() { return _toolbarType; }
 
+function setPlaceMode() {
+  // Deactivate any active marker and show Place mode UI
+  _activeMarker = null;
+  // Update all marker elements
+  const wrap = document.getElementById('overlayWrap');
+  if (wrap) wrap.querySelectorAll('.marker').forEach(m=>m.classList.remove('marker-active'));
+  updateToolbarDeleteBtn(false);
+  // Update cursor
+  const c = document.querySelector('.stage-img-container');
+  if (c) c.style.cursor = 'crosshair';
+}
+
+function setMoveMode() {
+  // Show Move mode UI
+  updateToolbarDeleteBtn(true);
+  // Update cursor
+  const c = document.querySelector('.stage-img-container');
+  if (c) c.style.cursor = 'move';
+}
+
+function updateToolbarMode(isMove) {
+  const pb = document.getElementById('modeBadgePlace');
+  const mb = document.getElementById('modeBadgeMove');
+  const nb = document.getElementById('toolbarNewBtn');
+  if (pb) pb.classList.toggle('active', !isMove);
+  if (mb) mb.classList.toggle('active', isMove);
+  if (nb) nb.style.display = isMove ? 'block' : 'none';
+}
+
 function showToolbar(id) {
   closeToolbar();
   const tb = document.createElement('div');
   tb.id = 'editToolbar';
   tb.className = 'edit-toolbar';
   tb.innerHTML = `
-    <div class="toolbar-drag-handle" id="toolbarHandle">⠿ Edit toolbar — tap image to place</div>
+    <div class="toolbar-drag-handle" id="toolbarHandle">⠿ Edit toolbar</div>
+    <div class="toolbar-mode-indicator" id="toolbarMode">
+      <span class="mode-badge mode-place active" id="modeBadgePlace">📍 Place mode</span>
+      <span class="mode-badge mode-move" id="modeBadgeMove">✥ Move mode</span>
+    </div>
+    <div class="toolbar-section-label">Marker type</div>
     <div class="toolbar-types">
       <button class="toolbar-type-btn type-shoot selected" data-type="shoot" title="Shooting step">🔵 Shoot</button>
       <button class="toolbar-type-btn type-reload" data-type="reload" title="Reload point">🟠 Reload</button>
@@ -467,21 +500,22 @@ function showToolbar(id) {
     <input class="toolbar-text-input" id="toolbarTextInput" type="text"
            placeholder="Optional description…" maxlength="60">
     <div class="toolbar-actions-row">
+      <button class="toolbar-new-btn" id="toolbarNewBtn" onclick="setPlaceMode()" style="display:none">📍 Place new marker</button>
       <button class="toolbar-delete-btn" id="toolbarDeleteBtn" onclick="deleteActiveMarker(${id})" disabled>🗑 Delete selected</button>
-    </div>
-    <div class="toolbar-hint" id="toolbarHint">Tap image to place marker</div>`;
+    </div>`;
   document.body.appendChild(tb);
 
   // Start position — top-right area of viewport
   tb.style.left = (window.innerWidth - 250) + 'px';
   tb.style.top  = '120px';
 
-  // Type button selection
+  // Type button selection — clicking type also switches to place mode
   tb.querySelectorAll('.toolbar-type-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       tb.querySelectorAll('.toolbar-type-btn').forEach(b=>b.classList.remove('selected'));
       this.classList.add('selected');
       _toolbarType = this.dataset.type;
+      setPlaceMode(); // selecting a type = ready to place new
     });
   });
 
@@ -523,12 +557,13 @@ function makeDraggableEl(el, handle) {
 
 function updateToolbarDeleteBtn(active) {
   const btn=document.getElementById('toolbarDeleteBtn');
-  const hint=document.getElementById('toolbarHint');
   if(btn) {
     btn.disabled=!active;
     btn.style.opacity=active?'1':'0.35';
   }
-  if(hint) hint.textContent=active?'Tap image to move — or delete':'Tap image to place marker';
+  updateToolbarMode(active);
+  const c=document.querySelector('.stage-img-container');
+  if(c) c.style.cursor = active ? 'move' : 'crosshair';
 }
 
 function deleteActiveMarker(id) {
@@ -548,6 +583,8 @@ function deleteActiveMarker(id) {
   renderOverlayMarkers(id);
   renderShootingOrder(id);
   updateToolbarDeleteBtn(false);
+  updateToolbarMode(false);
+  setPlaceMode();
 }
 
 function showAddPopup(clientX,clientY,id) {
@@ -583,6 +620,20 @@ function confirmAddMarker(id,type) {
   renderOverlaySvg(id);
   renderOverlayMarkers(id);
   renderShootingOrder(id);
+
+  // Auto-activate the newly placed marker and switch to Move mode
+  const k2 = String(id);
+  if (type === 'ns') {
+    const nsArr = positions[k2].ns;
+    _activeMarker = {type:'ns', idx:nsArr.length-1, obj:nsArr[nsArr.length-1]};
+  } else {
+    const mArr = positions[k2].markers;
+    _activeMarker = {type:'marker', idx:mArr.length-1, obj:mArr[mArr.length-1]};
+  }
+  setMoveMode();
+  updateToolbarMode(true);
+  // Re-render markers to show active state
+  renderOverlayMarkers(id);
 }
 
 

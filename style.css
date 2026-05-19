@@ -258,3 +258,35 @@ header{background:#161b27;border-bottom:1px solid #2d3748;padding:.9rem 1.5rem;p
   cursor:pointer; font-weight:600;
 }
 .btn-logout:hover { color:#f7fafc; border-color:#718096; }
+
+/* ── Toolbar mode indicator ── */
+.toolbar-mode-indicator {
+  display:flex; gap:5px; margin-bottom:8px;
+}
+.mode-badge {
+  flex:1; text-align:center; padding:5px 4px;
+  border-radius:6px; font-size:.7rem; font-weight:700;
+  border:1px solid #2d3748; color:#4a5568;
+  transition:all .15s;
+}
+.mode-badge.mode-place.active {
+  background:#1a365d; color:#90cdf4; border-color:#2b6cb0;
+}
+.mode-badge.mode-move.active {
+  background:#553c9a; color:#d6bcfa; border-color:#6b46c1;
+}
+.toolbar-section-label {
+  font-size:.62rem; font-weight:700; color:#718096;
+  text-transform:uppercase; letter-spacing:.06em;
+  margin-bottom:5px;
+}
+.toolbar-new-btn {
+  width:100%; background:#1a365d; color:#90cdf4;
+  border:1px solid #2b6cb0; padding:6px;
+  border-radius:6px; font-size:.73rem; font-weight:600;
+  cursor:pointer; margin-bottom:5px; transition:all .15s;
+}
+.toolbar-new-btn:hover { background:#2b6cb0; color:#fff; }
+
+/* ── Move cursor on image when in move mode ── */
+.stage-img-container.move-mode { cursor:move !important; }
