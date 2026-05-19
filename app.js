@@ -1,15 +1,65 @@
-/* ── EHC 2026 Stage Analysis — Supabase Edition v4 ── */
+/* ── EHC 2026 Stage Analysis — Supabase Edition v5 ── */
 
 const SUPABASE_URL  = 'https://ydtkremsqomtlyocjsng.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_PZcSch5_vSf5R3PdaYRjGQ_-46gHW1g';
 
+const DIVISIONS = [
+  'Classic','Open','Standard','Production','Production Optics',
+  'Optics','PO-S','PO-SS','Prod-SS','Lady-Prod','SuperJunior-PO','Junior-PO'
+];
+
 /* ── State ── */
-let currentModalId = null;
-let editMode       = false;
-let positions      = {};   // {stageId: {markers:[], ns:[], movers:[]}}
-let shootingOrders = {};   // {stageId: [{text,type},...] or null}
-let supabaseReady  = false;
-let saveTimeout    = null;
+let currentDivision = null;  // set after login
+let currentModalId  = null;
+let editMode        = false;
+let positions       = {};
+let shootingOrders  = {};
+let supabaseReady   = false;
+let saveTimeout     = null;
+
+/* ════════════ LOGIN ════════════ */
+function doLogin() {
+  const div  = document.getElementById('loginDivision').value;
+  const pass = document.getElementById('loginPassword').value.trim();
+  const err  = document.getElementById('loginError');
+
+  if (!div) { err.textContent='Please select a division.'; err.style.display='block'; return; }
+  if (pass !== div) { err.style.display='block'; return; }
+
+  err.style.display='none';
+  currentDivision = div;
+  sessionStorage.setItem('ehc_division', div);
+
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  document.getElementById('divisionBadge').textContent = div + ' Division';
+  document.title = 'EHC 2026 — ' + div;
+
+  startApp();
+}
+
+function doLogout() {
+  sessionStorage.removeItem('ehc_division');
+  currentDivision=null; positions={}; shootingOrders={};
+  supabaseReady=false; currentModalId=null; editMode=false;
+  closeModal(); closeToolbar(); closePopup();
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPassword').value='';
+  document.getElementById('loginDivision').value='';
+}
+
+function checkSession() {
+  const saved = sessionStorage.getItem('ehc_division');
+  if (saved && DIVISIONS.includes(saved)) {
+    currentDivision = saved;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appScreen').style.display='block';
+    document.getElementById('divisionBadge').textContent = saved + ' Division';
+    document.title = 'EHC 2026 — ' + saved;
+    startApp();
+  }
+}
 
 const TAG_LABELS = {
   special:{label:'Special',cls:'b-purple'},
@@ -31,7 +81,11 @@ function sbH() {
   };
 }
 async function sbGetAll() {
-  const r=await fetch(`${SUPABASE_URL}/rest/v1/stage_positions?select=*`,{headers:sbH()});
+  const div = encodeURIComponent(currentDivision);
+  const r=await fetch(
+    `${SUPABASE_URL}/rest/v1/stage_positions?division=eq.${div}&select=*`,
+    {headers:sbH()}
+  );
   if(!r.ok) throw new Error('GET '+r.status);
   return r.json();
 }
@@ -39,7 +93,11 @@ async function sbUpsert(id,pos,order) {
   const r=await fetch(`${SUPABASE_URL}/rest/v1/stage_positions`,{
     method:'POST',
     headers:{...sbH(),'Prefer':'resolution=merge-duplicates,return=representation'},
-    body:JSON.stringify({stage_id:id,positions:pos,shooting_order:order,updated_at:new Date().toISOString()})
+    body:JSON.stringify({
+      stage_id:id, division:currentDivision,
+      positions:pos, shooting_order:order,
+      updated_at:new Date().toISOString()
+    })
   });
   if(!r.ok) throw new Error('UPSERT '+await r.text());
   return r.json();
@@ -227,8 +285,10 @@ function toggleEditMode() {
   renderOverlayMarkers(currentModalId);
   renderShootingOrder(currentModalId);
   if(editMode) {
+    _activeMarker=null;
     showToolbar(currentModalId);
   } else {
+    _activeMarker=null;
     closeToolbar();
     closePopup();
   }
@@ -370,12 +430,24 @@ function onImageClick(e,id) {
   const fy=Math.max(0,Math.min(1,clickY/H));
 
   pendingClick={fx,fy};
-  // Use currently selected type from toolbar
-  confirmAddMarker(id, getToolbarType());
+
+  if(_activeMarker) {
+    // Move active marker to new position
+    _activeMarker.obj.x=fx;
+    _activeMarker.obj.y=fy;
+    _activeMarker=null;
+    scheduleSave(id);
+    renderOverlayMarkers(id);
+    updateToolbarDeleteBtn(false);
+  } else {
+    // Place new marker
+    confirmAddMarker(id, getToolbarType());
+  }
 }
 
 /* ════════════ FLOATING EDIT TOOLBAR ════════════ */
 let _toolbarType = 'shoot';
+let _activeMarker = null; // {type:'marker'|'ns', idx, obj} — currently selected for move
 
 function getToolbarType() { return _toolbarType; }
 
@@ -394,7 +466,10 @@ function showToolbar(id) {
     </div>
     <input class="toolbar-text-input" id="toolbarTextInput" type="text"
            placeholder="Optional description…" maxlength="60">
-    <div class="toolbar-hint">Tap on the image to place marker</div>`;
+    <div class="toolbar-actions-row">
+      <button class="toolbar-delete-btn" id="toolbarDeleteBtn" onclick="deleteActiveMarker(${id})" disabled>🗑 Delete selected</button>
+    </div>
+    <div class="toolbar-hint" id="toolbarHint">Tap image to place marker</div>`;
   document.body.appendChild(tb);
 
   // Start position — top-right area of viewport
@@ -444,6 +519,35 @@ function makeDraggableEl(el, handle) {
     el.style.top  = Math.max(0, Math.min(window.innerHeight-200, oy+(e.touches[0].clientY-sy))) + 'px';
   }, {passive:false});
   document.addEventListener('touchend', () => { drag=false; });
+}
+
+function updateToolbarDeleteBtn(active) {
+  const btn=document.getElementById('toolbarDeleteBtn');
+  const hint=document.getElementById('toolbarHint');
+  if(btn) {
+    btn.disabled=!active;
+    btn.style.opacity=active?'1':'0.35';
+  }
+  if(hint) hint.textContent=active?'Tap image to move — or delete':'Tap image to place marker';
+}
+
+function deleteActiveMarker(id) {
+  if(!_activeMarker) return;
+  const k=String(id);
+  if(_activeMarker.type==='ns') {
+    positions[k].ns.splice(_activeMarker.idx,1);
+  } else {
+    positions[k].markers.splice(_activeMarker.idx,1);
+    positions[k].markers.forEach((m,i)=>{m.step=i+1;});
+    if(shootingOrders[k]&&shootingOrders[k].length>_activeMarker.idx) {
+      shootingOrders[k].splice(_activeMarker.idx,1);
+    }
+  }
+  _activeMarker=null;
+  scheduleSave(id);
+  renderOverlayMarkers(id);
+  renderShootingOrder(id);
+  updateToolbarDeleteBtn(false);
 }
 
 function showAddPopup(clientX,clientY,id) {
@@ -654,7 +758,7 @@ function renderOverlayMarkers(id) {
   wrap.innerHTML='';
   const pos=positions[String(id)]; if(!pos) return;
   const b=getBounds(); if(!b) return;
-  const toP=(fx,fy)=>({x:fx*b.W,y:b.off+fy*b.dH});
+  const toP=(fx,fy)=>({x:fx*b.W, y:fy*b.H});
 
   function applySize(el,size,fsize) {
     el.style.width=size+'px'; el.style.height=size+'px';
@@ -662,26 +766,17 @@ function renderOverlayMarkers(id) {
     el.style.borderWidth=Math.max(1.5,size*0.07)+'px';
   }
 
-  function makeDrag(el,obj) {
-    if(!editMode) return;
-    el.classList.add('draggable');
-    let drag=false,sx,sy,ox,oy;
-    const down=(cx,cy)=>{drag=true;sx=cx;sy=cy;ox=obj.x;oy=obj.y;};
-    const move=(cx,cy)=>{
-      if(!drag) return;
-      obj.x=Math.max(0,Math.min(1,ox+(cx-sx)/b.W));
-      obj.y=Math.max(0,Math.min(1,oy+(cy-sy)/b.dH));
-      const p=toP(obj.x,obj.y);
-      el.style.left=p.x+'px'; el.style.top=p.y+'px';
-      renderOverlaySvg(id);
-    };
-    const up=()=>{if(!drag)return;drag=false;scheduleSave(id);};
-    el.addEventListener('mousedown',e=>{down(e.clientX,e.clientY);e.stopPropagation();e.preventDefault();});
-    document.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
-    document.addEventListener('mouseup',up);
-    el.addEventListener('touchstart',e=>{down(e.touches[0].clientX,e.touches[0].clientY);e.stopPropagation();e.preventDefault();},{passive:false});
-    document.addEventListener('touchmove',e=>{if(drag)move(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
-    document.addEventListener('touchend',up);
+  function markActive(el) {
+    // Remove active class from all
+    wrap.querySelectorAll('.marker').forEach(m=>m.classList.remove('marker-active'));
+    el.classList.add('marker-active');
+    updateToolbarDeleteBtn(true);
+  }
+
+  function clearActive() {
+    wrap.querySelectorAll('.marker').forEach(m=>m.classList.remove('marker-active'));
+    _activeMarker=null;
+    updateToolbarDeleteBtn(false);
   }
 
   const ns=Math.max(14,b.ms*0.75);
@@ -694,11 +789,20 @@ function renderOverlayMarkers(id) {
     el.style.left=p.x+'px'; el.style.top=p.y+'px';
     el.innerHTML=`${m.type==='reload'?'↺':m.step}<span class="marker-tooltip">${m.label||''}</span>`;
     applySize(el,b.ms,b.fs);
-    makeDrag(el,m);
+    // Restore active state if this marker was active
+    if(_activeMarker&&_activeMarker.type==='marker'&&_activeMarker.idx===idx) {
+      el.classList.add('marker-active');
+    }
     if(editMode) {
       el.addEventListener('click',e=>{
         e.stopPropagation();
-        showDeletePopup(e.clientX,e.clientY,id,'marker',idx);
+        if(_activeMarker&&_activeMarker.type==='marker'&&_activeMarker.idx===idx) {
+          // Tap active marker again = deselect
+          clearActive();
+        } else {
+          _activeMarker={type:'marker',idx,obj:m};
+          markActive(el);
+        }
       });
     }
     wrap.appendChild(el);
@@ -711,11 +815,18 @@ function renderOverlayMarkers(id) {
     el.style.left=p.x+'px'; el.style.top=p.y+'px';
     el.innerHTML=`NS<span class="marker-tooltip">NS Target — DO NOT SHOOT</span>`;
     applySize(el,ns,nfs);
-    makeDrag(el,n);
+    if(_activeMarker&&_activeMarker.type==='ns'&&_activeMarker.idx===idx) {
+      el.classList.add('marker-active');
+    }
     if(editMode) {
       el.addEventListener('click',e=>{
         e.stopPropagation();
-        showDeletePopup(e.clientX,e.clientY,id,'ns',idx);
+        if(_activeMarker&&_activeMarker.type==='ns'&&_activeMarker.idx===idx) {
+          clearActive();
+        } else {
+          _activeMarker={type:'ns',idx,obj:n};
+          markActive(el);
+        }
       });
     }
     wrap.appendChild(el);
@@ -731,10 +842,15 @@ window.addEventListener('resize',()=>{
 });
 
 /* ════════════ BOOT ════════════ */
-async function init() {
+async function startApp() {
+  positions={}; shootingOrders={};
   renderHeaderStats();
   renderGrid();
   await initPositions();
   startLivePoll();
+}
+
+async function init() {
+  checkSession();
 }
 init();

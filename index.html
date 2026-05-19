@@ -3,21 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EHC 2026 — Stage Analysis | Classic Division</title>
+<title>EHC 2026 — Stage Analysis</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><span class="badge-ec" style="font-size:1rem;padding:4px 14px">EHC 2026</span></div>
+    <h1 class="login-title">Stage Analysis</h1>
+    <p class="login-sub">Select your division and enter your password to continue.</p>
+    <div class="login-field">
+      <label class="login-label">Division</label>
+      <select id="loginDivision" class="login-select">
+        <option value="">— Select division —</option>
+        <option value="Classic">Classic</option>
+        <option value="Open">Open</option>
+        <option value="Standard">Standard</option>
+        <option value="Production">Production</option>
+        <option value="Production Optics">Production Optics</option>
+        <option value="Optics">Optics</option>
+        <option value="PO-S">PO-S</option>
+        <option value="PO-SS">PO-SS</option>
+        <option value="Prod-SS">Prod-SS</option>
+        <option value="Lady-Prod">Lady-Prod</option>
+        <option value="SuperJunior-PO">SuperJunior-PO</option>
+        <option value="Junior-PO">Junior-PO</option>
+      </select>
+    </div>
+    <div class="login-field">
+      <label class="login-label">Password</label>
+      <input id="loginPassword" class="login-input" type="password"
+             placeholder="Enter division password"
+             onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+    <div id="loginError" class="login-error" style="display:none">Incorrect password. Password = division name.</div>
+    <button class="login-btn" onclick="doLogin()">Enter →</button>
+    <p class="login-hint">Password is the same as the division name.</p>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until login) -->
+<div id="appScreen" style="display:none">
 
 <header>
   <div class="header-inner">
     <div class="header-title">
       <span class="badge-ec">EHC 2026</span>
       <h1>Stage Analysis</h1>
-      <span class="badge-div">Classic Division · 10-round magazines</span>
+      <span class="badge-div" id="divisionBadge">— Division —</span>
     </div>
     <div class="header-right">
       <div class="header-stats" id="headerStats"></div>
       <div id="syncStatus" class="sync-status">◌ Connecting…</div>
+      <button class="btn-logout" onclick="doLogout()" title="Switch division">⇄ Switch</button>
     </div>
   </div>
 </header>
@@ -41,19 +81,16 @@
       <button class="btn-nav" id="btnNext" onclick="navigateModal(1)">Next →</button>
     </div>
     <div class="modal-header-right">
-      <button class="btn-edit" id="btnEditMode" onclick="toggleEditMode()">✏ Edit positions</button>
+      <button class="btn-edit" id="btnEditMode" onclick="toggleEditMode()">✏ Edit</button>
       <button class="modal-close" onclick="closeModal()">✕ Close</button>
     </div>
   </div>
   <div class="modal-inner" id="modalContent"></div>
 </div>
 
-<div class="edit-hint" id="editHint" style="display:none">
-  <strong>Edit mode</strong><br>
-  Drag any marker to reposition.<br>
-  Auto-saves to database instantly.<br>
-  Your buddy sees changes in ~15 sec.
-</div>
+<div class="edit-hint" id="editHint" style="display:none"></div>
+
+</div><!-- end appScreen -->
 
 <script src="stage_data.js"></script>
 <script src="app.js"></script>
