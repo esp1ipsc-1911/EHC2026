@@ -410,8 +410,8 @@ function showToolbar(id) {
     });
   });
 
-  // Make draggable by handle
-  makeDraggableEl(tb, document.getElementById('toolbarHandle'));
+  // Make draggable by handle — use querySelector on tb, not getElementById
+  makeDraggableEl(tb, tb.querySelector('#toolbarHandle'));
 }
 
 function closeToolbar() {
