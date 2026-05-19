@@ -147,3 +147,37 @@ header{background:#161b27;border-bottom:1px solid #2d3748;padding:.9rem 1.5rem;p
 .popup-delete-label{font-size:.8rem;color:#e2e8f0;margin-bottom:10px;padding:6px 8px;background:#2d3748;border-radius:5px;text-align:center}
 .popup-delete-btn{background:#742a2a;color:#fc8181;border:1px solid #9b2c2c;padding:5px 14px;border-radius:5px;font-size:.75rem;font-weight:600;cursor:pointer}
 .popup-delete-btn:hover{background:#9b2c2c;color:#fff}
+
+/* ── Floating Edit Toolbar ── */
+.edit-toolbar{
+  position:fixed;z-index:500;background:#1a2236;
+  border:1px solid #6b46c1;border-radius:10px;
+  padding:0 12px 12px;box-shadow:0 8px 28px rgba(0,0,0,.75);
+  width:240px;cursor:default;
+}
+.toolbar-drag-handle{
+  font-size:.68rem;font-weight:700;color:#a0aec0;
+  text-transform:uppercase;letter-spacing:.05em;
+  padding:10px 0 8px;cursor:grab;border-bottom:1px solid #2d3748;
+  margin-bottom:10px;user-select:none;
+}
+.toolbar-drag-handle:active{cursor:grabbing}
+.toolbar-types{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.toolbar-type-btn{
+  background:#2d3748;border:1px solid #4a5568;color:#e2e8f0;
+  padding:7px 4px;border-radius:6px;font-size:.72rem;font-weight:600;
+  cursor:pointer;text-align:center;transition:all .1s;
+}
+.toolbar-type-btn:hover{background:#4a5568}
+.toolbar-type-btn.selected{border-color:#f6ad55;background:#7b341e;color:#fbd38d}
+.toolbar-type-btn.type-shoot.selected{border-color:#90cdf4;background:#1a365d;color:#90cdf4}
+.toolbar-type-btn.type-reload.selected{border-color:#f6ad55;background:#7b341e;color:#fbd38d}
+.toolbar-type-btn.type-start.selected{border-color:#9ae6b4;background:#1c4532;color:#9ae6b4}
+.toolbar-type-btn.type-ns.selected{border-color:#fc8181;background:#742a2a;color:#fc8181}
+.toolbar-text-input{
+  width:100%;background:#0d1117;border:1px solid #4a5568;
+  color:#e2e8f0;padding:6px 8px;border-radius:5px;
+  font-size:.75rem;margin-bottom:6px;outline:none;
+}
+.toolbar-text-input:focus{border-color:#4299e1}
+.toolbar-hint{font-size:.65rem;color:#4a5568;text-align:center}

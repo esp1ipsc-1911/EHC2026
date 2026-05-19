@@ -221,12 +221,17 @@ function toggleEditMode() {
   const btn=document.getElementById('btnEditMode');
   btn.classList.toggle('active',editMode);
   btn.textContent=editMode?'✓ Done':'✏ Edit';
-  document.getElementById('editHint').style.display=editMode?'block':'none';
+  document.getElementById('editHint').style.display='none'; // toolbar replaces hint
   const c=document.querySelector('.stage-img-container');
   if(c) c.classList.toggle('edit-mode',editMode);
   renderOverlayMarkers(currentModalId);
   renderShootingOrder(currentModalId);
-  if(!editMode) closePopup();
+  if(editMode) {
+    showToolbar(currentModalId);
+  } else {
+    closeToolbar();
+    closePopup();
+  }
 }
 
 /* ════════════ MODAL CONTENT ════════════ */
@@ -348,7 +353,8 @@ function onImageClick(e,id) {
   if(!editMode) return;
   // Ignore clicks on existing markers
   if(e.target.classList.contains('marker')||e.target.classList.contains('marker-tooltip')) return;
-  // Ignore clicks on the popup itself
+  // Ignore clicks on toolbar
+  if(e.target.closest('#editToolbar')) return;
   if(e.target.closest('#addMarkerPopup')) return;
 
   const container=document.getElementById('stageImgContainer');
@@ -364,57 +370,91 @@ function onImageClick(e,id) {
   const fy=Math.max(0,Math.min(1,clickY/H));
 
   pendingClick={fx,fy};
-  showAddPopup(e.clientX,e.clientY,id);
+  // Use currently selected type from toolbar
+  confirmAddMarker(id, getToolbarType());
+}
+
+/* ════════════ FLOATING EDIT TOOLBAR ════════════ */
+let _toolbarType = 'shoot';
+
+function getToolbarType() { return _toolbarType; }
+
+function showToolbar(id) {
+  closeToolbar();
+  const tb = document.createElement('div');
+  tb.id = 'editToolbar';
+  tb.className = 'edit-toolbar';
+  tb.innerHTML = `
+    <div class="toolbar-drag-handle" id="toolbarHandle">⠿ Edit toolbar — tap image to place</div>
+    <div class="toolbar-types">
+      <button class="toolbar-type-btn type-shoot selected" data-type="shoot" title="Shooting step">🔵 Shoot</button>
+      <button class="toolbar-type-btn type-reload" data-type="reload" title="Reload point">🟠 Reload</button>
+      <button class="toolbar-type-btn type-start"  data-type="start"  title="Start position">🟢 Start</button>
+      <button class="toolbar-type-btn type-ns"     data-type="ns"     title="NS — do not shoot">🔴 NS</button>
+    </div>
+    <input class="toolbar-text-input" id="toolbarTextInput" type="text"
+           placeholder="Optional description…" maxlength="60">
+    <div class="toolbar-hint">Tap on the image to place marker</div>`;
+  document.body.appendChild(tb);
+
+  // Start position — top-right area of viewport
+  tb.style.left = (window.innerWidth - 250) + 'px';
+  tb.style.top  = '120px';
+
+  // Type button selection
+  tb.querySelectorAll('.toolbar-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      tb.querySelectorAll('.toolbar-type-btn').forEach(b=>b.classList.remove('selected'));
+      this.classList.add('selected');
+      _toolbarType = this.dataset.type;
+    });
+  });
+
+  // Make draggable by handle
+  makeDraggableEl(tb, document.getElementById('toolbarHandle'));
+}
+
+function closeToolbar() {
+  const tb = document.getElementById('editToolbar');
+  if (tb) tb.remove();
+}
+
+function makeDraggableEl(el, handle) {
+  let drag=false, sx, sy, ox, oy;
+  handle.addEventListener('mousedown', e => {
+    drag=true; sx=e.clientX; sy=e.clientY;
+    ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if(!drag) return;
+    el.style.left = Math.max(0, Math.min(window.innerWidth-240, ox+(e.clientX-sx))) + 'px';
+    el.style.top  = Math.max(0, Math.min(window.innerHeight-200, oy+(e.clientY-sy))) + 'px';
+  });
+  document.addEventListener('mouseup', () => { drag=false; });
+  // Touch support
+  handle.addEventListener('touchstart', e => {
+    drag=true; sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', e => {
+    if(!drag) return;
+    el.style.left = Math.max(0, Math.min(window.innerWidth-240, ox+(e.touches[0].clientX-sx))) + 'px';
+    el.style.top  = Math.max(0, Math.min(window.innerHeight-200, oy+(e.touches[0].clientY-sy))) + 'px';
+  }, {passive:false});
+  document.addEventListener('touchend', () => { drag=false; });
 }
 
 function showAddPopup(clientX,clientY,id) {
-  closePopup();
-  const popup=document.createElement('div');
-  popup.id='addMarkerPopup';
-  popup.className='add-marker-popup';
-
-  popup.innerHTML=`
-    <div class="popup-title">Add marker</div>
-    <div class="popup-types">
-      <button class="popup-type-btn type-shoot"  onclick="confirmAddMarker(${id},'shoot')" title="Shooting step">🔵 Shoot</button>
-      <button class="popup-type-btn type-reload"  onclick="confirmAddMarker(${id},'reload')" title="Reload point">🟠 Reload</button>
-      <button class="popup-type-btn type-start"   onclick="confirmAddMarker(${id},'start')" title="Start position">🟢 Start</button>
-      <button class="popup-type-btn type-ns"      onclick="confirmAddMarker(${id},'ns')" title="NS target — do not shoot">🔴 NS</button>
-    </div>
-    <input class="popup-text-input" id="popupTextInput" type="text"
-           placeholder="Optional description…" maxlength="60"
-           onkeydown="if(event.key==='Enter') document.querySelector('.popup-type-btn.selected')&&confirmAddMarker(${id},document.querySelector('.popup-type-btn.selected').dataset.type)">
-    <div class="popup-actions">
-      <button class="popup-cancel" onclick="closePopup()">Cancel</button>
-    </div>`;
-
-  document.body.appendChild(popup);
-
-  // Position popup near click, keep within viewport
-  const pw=220, ph=160;
-  let left=clientX+10, top=clientY+10;
-  if(left+pw>window.innerWidth)  left=clientX-pw-10;
-  if(top+ph>window.innerHeight)  top=clientY-ph-10;
-  popup.style.left=left+'px';
-  popup.style.top=top+'px';
-
-  // Type button selection
-  popup.querySelectorAll('.popup-type-btn').forEach(btn=>{
-    btn.dataset.type=btn.className.match(/type-(\w+)/)[1];
-    btn.addEventListener('click',function(){
-      popup.querySelectorAll('.popup-type-btn').forEach(b=>b.classList.remove('selected'));
-      this.classList.add('selected');
-    });
-  });
-  // Pre-select shoot
-  popup.querySelector('.type-shoot').classList.add('selected');
-  setTimeout(()=>document.getElementById('popupTextInput')&&document.getElementById('popupTextInput').focus(),50);
+  // Legacy — not used anymore, toolbar handles this
 }
 
 function confirmAddMarker(id,type) {
-  const textEl=document.getElementById('popupTextInput');
+  const textEl=document.getElementById('toolbarTextInput');
   const text=textEl?textEl.value.trim():'';
-  closePopup();
+  // Clear text input after placing
+  if(textEl) textEl.value='';
 
   const k=String(id);
   if(!positions[k]) positions[k]={markers:[],ns:[],movers:[]};
